@@ -14,8 +14,8 @@ ARG WKDIR=/home/user
 # dash -> bash
 RUN echo "dash dash/sh boolean false" | debconf-set-selections \
     && dpkg-reconfigure -p low dash
-COPY bashrc ${WKDIR}/.bashrc
-WORKDIR ${WKDIR}
+COPY bashrc /home/user/.bashrc
+WORKDIR /home/user
 
 # Install dependencies (1)
 RUN apt-get update && apt-get install -y \
@@ -87,31 +87,31 @@ RUN pip3 install --upgrade pip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install custom tflite_runtime, flatc, edgetpu-compiler
-RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/${APPVER}/tflite_runtime-${TENSORFLOWVER}-${CPVER}-none-linux_x86_64.whl \
-    && chmod +x tflite_runtime-${TENSORFLOWVER}-${CPVER}-none-linux_x86_64.whl \
-    && pip3 install --force-reinstall tflite_runtime-${TENSORFLOWVER}-${CPVER}-none-linux_x86_64.whl \
-    && rm tflite_runtime-${TENSORFLOWVER}-${CPVER}-none-linux_x86_64.whl \
-    && wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/${APPVER}/flatc.tar.gz \
+RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.29.0/tflite_runtime-2.8.0-${CPVER}-none-linux_x86_64.whl \
+    && chmod +x tflite_runtime-2.8.0-${CPVER}-none-linux_x86_64.whl \
+    && pip3 install --force-reinstall tflite_runtime-2.8.0-${CPVER}-none-linux_x86_64.whl \
+    && rm tflite_runtime-2.8.0-${CPVER}-none-linux_x86_64.whl \
+    && wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.29.0/flatc.tar.gz \
     && tar -zxvf flatc.tar.gz \
     && chmod +x flatc \
     && rm flatc.tar.gz \
     && wget https://github.com/PINTO0309/tflite2tensorflow/raw/main/schema/schema.fbs \
-    # && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
-    # && echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list \
-    # && apt-get update \
-    # && apt-get install edgetpu-compiler \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
+    && echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list \
+    && apt-get update \
+    && apt-get install edgetpu-compiler \
     && pip cache purge \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Install OpenVINO
-RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/${APPVER}/l_openvino_toolkit_p_${OPENVINOVER}.tgz \
+RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.29.0/l_openvino_toolkit_p_${OPENVINOVER}.tgz \
     && tar xf l_openvino_toolkit_p_${OPENVINOVER}.tgz \
     && rm l_openvino_toolkit_p_${OPENVINOVER}.tgz \
     && l_openvino_toolkit_p_${OPENVINOVER}/install_openvino_dependencies.sh -y \
     && sed -i 's/decline/accept/g' l_openvino_toolkit_p_${OPENVINOVER}/silent.cfg \
     && l_openvino_toolkit_p_${OPENVINOVER}/install.sh --silent l_openvino_toolkit_p_${OPENVINOVER}/silent.cfg \
-    && source ${OPENVINOROOTDIR}/bin/setupvars.sh \
+    && source /opt/intel/openvino_2021/bin/setupvars.sh \
     && ${INTEL_OPENVINO_DIR}/install_dependencies/install_openvino_dependencies.sh \
     && sed -i 's/sudo -E //g' ${INTEL_OPENVINO_DIR}/deployment_tools/model_optimizer/install_prerequisites/install_prerequisites.sh \
     && sed -i 's/tensorflow/#tensorflow/g' ${INTEL_OPENVINO_DIR}/deployment_tools/model_optimizer/requirements.txt \
@@ -119,22 +119,22 @@ RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/${AP
     && sed -i 's/onnx/#onnx/g' ${INTEL_OPENVINO_DIR}/deployment_tools/model_optimizer/requirements.txt \
     && ${INTEL_OPENVINO_DIR}/deployment_tools/model_optimizer/install_prerequisites/install_prerequisites.sh \
     && rm -rf l_openvino_toolkit_p_${OPENVINOVER} \
-    && echo "source ${OPENVINOROOTDIR}/bin/setupvars.sh" >> .bashrc \
-    && echo "${OPENVINOROOTDIR}/deployment_tools/ngraph/lib/" >> /etc/ld.so.conf \
-    && echo "${OPENVINOROOTDIR}/deployment_tools/inference_engine/lib/intel64/" >> /etc/ld.so.conf \
+    && echo "source /opt/intel/openvino_2021/bin/setupvars.sh" >> .bashrc \
+    && echo "/opt/intel/openvino_2021/deployment_tools/ngraph/lib/" >> /etc/ld.so.conf \
+    && echo "/opt/intel/openvino_2021/deployment_tools/inference_engine/lib/intel64/" >> /etc/ld.so.conf \
     && pip cache purge \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Install TensorRT additional package
-RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/${APPVER}/nv-tensorrt-repo-${OSVER}-${TENSORRTVER}_1-1_amd64.deb \
-    && dpkg -i nv-tensorrt-repo-${OSVER}-${TENSORRTVER}_1-1_amd64.deb \
-    && apt-key add /var/nv-tensorrt-repo-${OSVER}-${TENSORRTVER}/7fa2af80.pub \
+RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.29.0/nv-tensorrt-repo-ubuntu2004-cuda11.4-trt8.2.3.0-ga-20220113_1-1_amd64.deb \
+    && dpkg -i nv-tensorrt-repo-ubuntu2004-cuda11.4-trt8.2.3.0-ga-20220113_1-1_amd64.deb \
+    && apt-key add /var/nv-tensorrt-repo-ubuntu2004-cuda11.4-trt8.2.3.0-ga-20220113/7fa2af80.pub \
     && apt-get update \
     && apt-get install -y \
         tensorrt uff-converter-tf graphsurgeon-tf \
         python3-libnvinfer-dev onnx-graphsurgeon \
-    && rm nv-tensorrt-repo-${OSVER}-${TENSORRTVER}_1-1_amd64.deb \
+    && rm nv-tensorrt-repo-ubuntu2004-cuda11.4-trt8.2.3.0-ga-20220113_1-1_amd64.deb \
     && cd /usr/src/tensorrt/samples/trtexec \
     && make \
     && apt clean \
@@ -143,15 +143,15 @@ RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/${AP
 # onnxruntime-gpu (CUDA, TensorRT)
 # https://zenn.dev/pinto0309/scraps/1e9c0a00112cf9
 RUN pip uninstall -y onnxruntime onnxruntime-gpu \
-    && wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/${APPVER}/onnxruntime_gpu-${ONNXRUNTIMEVER}-${CPVER}-none-linux_x86_64.whl \
-    && pip install onnxruntime_gpu-${ONNXRUNTIMEVER}-${CPVER}-none-linux_x86_64.whl \
-    && rm onnxruntime_gpu-${ONNXRUNTIMEVER}-${CPVER}-none-linux_x86_64.whl
+    && wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.29.0/onnxruntime_gpu-1.11.0-${CPVER}-none-linux_x86_64.whl \
+    && pip install onnxruntime_gpu-1.11.0-${CPVER}-none-linux_x86_64.whl \
+    && rm onnxruntime_gpu-1.11.0-${CPVER}-none-linux_x86_64.whl
 
 # Install Custom TensorFlow (MediaPipe Custom OP, FlexDelegate, XNNPACK enabled)
 # https://github.com/PINTO0309/Tensorflow-bin
-RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/${APPVER}/tensorflow-${TENSORFLOWVER}-${CPVER}-none-linux_x86_64.whl \
-    && pip3 install --force-reinstall tensorflow-${TENSORFLOWVER}-${CPVER}-none-linux_x86_64.whl \
-    && rm tensorflow-${TENSORFLOWVER}-${CPVER}-none-linux_x86_64.whl \
+RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.29.0/tensorflow-2.8.0-${CPVER}-none-linux_x86_64.whl \
+    && pip3 install --force-reinstall tensorflow-2.8.0-${CPVER}-none-linux_x86_64.whl \
+    && rm tensorflow-2.8.0-${CPVER}-none-linux_x86_64.whl \
     && pip cache purge \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
@@ -177,7 +177,7 @@ RUN git clone https://github.com/NVIDIA-AI-IOT/torch2trt \
 
 # Download the ultra-small sample data set for INT8 calibration
 RUN mkdir sample_npy \
-    && wget -O sample_npy/calibration_data_img_sample.npy https://github.com/PINTO0309/openvino2tensorflow/releases/download/${APPVER}/calibration_data_img_sample.npy
+    && wget -O sample_npy/calibration_data_img_sample.npy https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.29.0/calibration_data_img_sample.npy
 
 # LLVM
 RUN wget https://apt.llvm.org/llvm.sh \
@@ -212,13 +212,13 @@ RUN echo "root:root" | chpasswd \
     && echo "%${USERNAME}    ALL=(ALL)   NOPASSWD:    ALL" >> /etc/sudoers.d/${USERNAME} \
     && chmod 0440 /etc/sudoers.d/${USERNAME}
 USER ${USERNAME}
-RUN sudo chown ${USERNAME}:${USERNAME} ${WKDIR} \
-    && sudo chmod 777 ${WKDIR}/.bashrc
+RUN sudo chown ${USERNAME}:${USERNAME} /home/user \
+    && sudo chmod 777 /home/user/.bashrc
 
 # OpenCL settings - https://github.com/intel/compute-runtime/releases
-RUN cd ${OPENVINOROOTDIR}/install_dependencies/ \
+RUN cd /opt/intel/openvino_2021/install_dependencies/ \
     && yes | sudo -E ./install_NEO_OCL_driver.sh \
-    && cd ${WKDIR} \
+    && cd /home/user \
     && wget https://github.com/intel/compute-runtime/releases/download/21.35.20826/intel-gmmlib_21.2.1_amd64.deb \
     && wget https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.8517/intel-igc-core_1.0.8517_amd64.deb \
     && wget https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.8517/intel-igc-opencl_1.0.8517_amd64.deb \
@@ -277,5 +277,5 @@ RUN echo 'GPU=$(python3 -c "import torch;print(torch.cuda.is_available())")' >> 
     && echo "cd ${HOME}/onnx-tensorrt" >> ${HOME}/.bashrc \
     && echo "sudo python setup.py install" >> ${HOME}/.bashrc \
     && echo "fi" >> ${HOME}/.bashrc \
-    && echo "cd ${WKDIR}" >> ${HOME}/.bashrc \
+    && echo "cd /home/user" >> ${HOME}/.bashrc \
     && echo "cd ${HOME}/workdir" >> ${HOME}/.bashrc
