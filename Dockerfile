@@ -17,6 +17,8 @@ RUN echo "dash dash/sh boolean false" | debconf-set-selections \
 COPY bashrc /home/user/.bashrc
 WORKDIR /home/user
 
+RUN apt-get update
+
 RUN apt-get install aptitude
 
 
