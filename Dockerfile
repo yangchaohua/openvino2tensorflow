@@ -17,8 +17,12 @@ RUN echo "dash dash/sh boolean false" | debconf-set-selections \
 COPY bashrc /home/user/.bashrc
 WORKDIR /home/user
 
+sudo apt-get install aptitude
+
+
+
 # Install dependencies (1)
-RUN apt-get update && apt-get install -y \
+RUN aptitude update && aptitude install -y \
         automake autoconf libpng-dev nano python3-pip \
         curl zip unzip libtool swig zlib1g-dev pkg-config \
         python3-mock libpython3-dev libpython3-all-dev \
@@ -98,8 +102,8 @@ RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.2
     && wget https://github.com/PINTO0309/tflite2tensorflow/raw/main/schema/schema.fbs \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
     && echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list \
-    && apt-get update \
-    && apt-get install edgetpu-compiler \
+    && aptitude update \
+    && aptitude install edgetpu-compiler \
     && pip cache purge \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
@@ -130,8 +134,8 @@ RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.2
 RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/v1.29.0/nv-tensorrt-repo-ubuntu2004-cuda11.4-trt8.2.3.0-ga-20220113_1-1_amd64.deb \
     && dpkg -i nv-tensorrt-repo-ubuntu2004-cuda11.4-trt8.2.3.0-ga-20220113_1-1_amd64.deb \
     && apt-key add /var/nv-tensorrt-repo-ubuntu2004-cuda11.4-trt8.2.3.0-ga-20220113/7fa2af80.pub \
-    && apt-get update \
-    && apt-get install -y \
+    && aptitude update \
+    && aptitude install -y \
         tensorrt uff-converter-tf graphsurgeon-tf \
         python3-libnvinfer-dev onnx-graphsurgeon \
     && rm nv-tensorrt-repo-ubuntu2004-cuda11.4-trt8.2.3.0-ga-20220113_1-1_amd64.deb \
