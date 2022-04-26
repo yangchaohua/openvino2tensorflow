@@ -252,7 +252,7 @@ RUN git clone --recursive https://github.com/apache/tvm \
         -DUSE_OPENMP=ON \
         -DUSE_NNPACK=OFF \
         # -DUSE_TFLITE=/usr/local/lib/libtensorflow-lite.a \
-        -DUSE_EDGETPU=OFF \
+        #-DUSE_EDGETPU=OFF \
         -DUSE_CUDNN=ON \
         -DUSE_TENSORRT_CODEGEN=ON \
         -DUSE_TENSORRT_RUNTIME=ON \
