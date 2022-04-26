@@ -97,9 +97,9 @@ RUN wget https://github.com/PINTO0309/openvino2tensorflow/releases/download/${AP
     && rm flatc.tar.gz \
     && wget https://github.com/PINTO0309/tflite2tensorflow/raw/main/schema/schema.fbs \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
-    && echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list \
-    && apt-get update \
-    && apt-get install edgetpu-compiler \
+    # && echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list \
+    # && apt-get update \
+    # && apt-get install edgetpu-compiler \
     && pip cache purge \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
@@ -252,7 +252,7 @@ RUN git clone --recursive https://github.com/apache/tvm \
         -DUSE_OPENMP=ON \
         -DUSE_NNPACK=OFF \
         # -DUSE_TFLITE=/usr/local/lib/libtensorflow-lite.a \
-        # -DUSE_EDGETPU=OFF \
+        -DUSE_EDGETPU=OFF \
         -DUSE_CUDNN=ON \
         -DUSE_TENSORRT_CODEGEN=ON \
         -DUSE_TENSORRT_RUNTIME=ON \
